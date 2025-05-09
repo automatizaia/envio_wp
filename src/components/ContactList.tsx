@@ -1,121 +1,65 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { List } from "lucide-react";
-import { supabase } from "../lib/supabaseClient";
+// Adicione essa lógica para o botão de envio
 
-interface Contact {
-  id: string;
-  nome: string;
-  telefone: string;
-}
+const isSendButtonDisabled = selectedContacts.length === 0;
 
-interface ContactListProps {
-  selectedContacts: string[];
-  onToggleContact: (contactId: string, checked: boolean) => void;
-  onToggleAll: (checked: boolean) => void;
-}
+return (
+  <Card>
+    <CardHeader className="pb-3">
+      <CardTitle className="text-lg flex items-center gap-2">
+        <List className="h-5 w-5 text-whatsapp" />
+        Contact List
+      </CardTitle>
+    </CardHeader>
+    <CardContent className="space-y-4">
+      <div className="flex items-center space-x-2 pb-2 border-b">
+        <Checkbox
+          id="select-all"
+          checked={allSelected}
+          onCheckedChange={(checked: boolean) => onToggleAll(checked)}
+        />
+        <label
+          htmlFor="select-all"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          Select All
+        </label>
+      </div>
 
-const ContactList: React.FC<ContactListProps> = ({
-  selectedContacts,
-  onToggleContact,
-  onToggleAll,
-}) => {
-  const [contacts, setContacts] = useState<Contact[]>([]);
-
-  useEffect(() => {
-    const fetchContacts = async () => {
-      const { data, error } = await supabase
-        .from("clientes")
-        .select("id, nome, telefone")
-        .eq("status", "SIM");
-
-      if (error) {
-        console.error("Erro ao carregar contatos:", error);
-      } else {
-        setContacts(data || []);
-      }
-    };
-
-    fetchContacts();
-  }, []);
-
-  const allSelected = contacts.length > 0 && selectedContacts.length === contacts.length;
-
-  if (contacts.length === 0) {
-    return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <List className="h-5 w-5 text-whatsapp" />
-            Contact List
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center py-8 text-gray-500">
-          No eligible contacts loaded yet.
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <List className="h-5 w-5 text-whatsapp" />
-            Contact List
-          </div>
-          <span className="text-sm font-normal text-gray-500">
-            {selectedContacts.length} of {contacts.length} selected
-          </span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center space-x-2 pb-2 border-b">
-          <Checkbox
-            id="select-all"
-            checked={allSelected}
-            onCheckedChange={(checked: boolean) => onToggleAll(checked)}
-          />
-          <label
-            htmlFor="select-all"
-            className="text-sm font-medium leading-none"
+      <div className="max-h-[300px] overflow-y-auto pr-2">
+        {contacts.map((contact) => (
+          <div
+            key={contact.id}
+            className="flex items-center space-x-2 py-2 border-b border-gray-100 last:border-0"
           >
-            Select All
-          </label>
-        </div>
-
-        <div className="max-h-[300px] overflow-y-auto pr-2">
-          {contacts.map((contact) => (
-            <div
-              key={contact.id}
-              className="flex items-center space-x-2 py-2 border-b border-gray-100 last:border-0"
-            >
-              <Checkbox
-                id={`contact-${contact.id}`}
-                checked={selectedContacts.includes(contact.id)}
-                onCheckedChange={(checked: boolean) =>
-                  onToggleContact(contact.id, checked)
-                }
-              />
-              <div className="grid gap-1">
-                <label
-                  htmlFor={`contact-${contact.id}`}
-                  className="text-sm font-medium"
-                >
-                  {contact.nome}
-                </label>
-                <p className="text-xs text-gray-500">
-                  {contact.telefone}
-                </p>
-              </div>
+            <Checkbox
+              id={`contact-${contact.id}`}
+              checked={selectedContacts.includes(contact.id)}
+              onCheckedChange={(checked: boolean) =>
+                onToggleContact(contact.id, checked)
+              }
+            />
+            <div className="grid gap-1">
+              <label
+                htmlFor={`contact-${contact.id}`}
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                {contact.name}
+              </label>
+              <p className="text-xs text-gray-500">{contact.phone}</p>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+          </div>
+        ))}
+      </div>
 
-export default ContactList;
+      {/* Botão de envio */}
+      <div className="pt-4">
+        <button
+          disabled={isSendButtonDisabled}
+          className={`px-4 py-2 text-white rounded-md ${isSendButtonDisabled ? 'bg-gray-400' : 'bg-blue-600'}`}
+        >
+          Enviar
+        </button>
+      </div>
+    </CardContent>
+  </Card>
+);
