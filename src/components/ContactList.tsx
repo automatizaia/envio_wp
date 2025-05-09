@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { List } from "lucide-react";
-import { Contact } from "@/types/contacts";
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from "../lib/supabaseClient";
 
-//import { supabase } from "@/lib/supabaseClient"; // Supondo que você tenha o cliente do Supabase configurado
+interface Contact {
+  id: string;
+  nome: string;
+  telefone: string;
+}
 
 interface ContactListProps {
   selectedContacts: string[];
@@ -21,9 +24,11 @@ const ContactList: React.FC<ContactListProps> = ({
   const [contacts, setContacts] = useState<Contact[]>([]);
 
   useEffect(() => {
-    // Função para carregar os contatos do Supabase
     const fetchContacts = async () => {
-      const { data, error } = await supabase.from("contacts").select("id, name, phone");
+      const { data, error } = await supabase
+        .from("clientes")
+        .select("id, nome, telefone")
+        .eq("status", "SIM");
 
       if (error) {
         console.error("Erro ao carregar contatos:", error);
@@ -75,12 +80,12 @@ const ContactList: React.FC<ContactListProps> = ({
           />
           <label
             htmlFor="select-all"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            className="text-sm font-medium leading-none"
           >
             Select All
           </label>
         </div>
-        
+
         <div className="max-h-[300px] overflow-y-auto pr-2">
           {contacts.map((contact) => (
             <div
@@ -97,12 +102,12 @@ const ContactList: React.FC<ContactListProps> = ({
               <div className="grid gap-1">
                 <label
                   htmlFor={`contact-${contact.id}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium"
                 >
-                  {contact.name}
+                  {contact.nome}
                 </label>
                 <p className="text-xs text-gray-500">
-                  {contact.phone}
+                  {contact.telefone}
                 </p>
               </div>
             </div>
@@ -114,5 +119,3 @@ const ContactList: React.FC<ContactListProps> = ({
 };
 
 export default ContactList;
-
-
