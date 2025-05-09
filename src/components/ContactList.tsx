@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { List } from "lucide-react";
 import { Contact } from "@/types/contacts";
-import { supabase } from "@/lib/supabaseClient"; // Supondo que você tenha o cliente do Supabase configurado
+import { supabase } from '../lib/supabaseClient'; // Caso esteja em um diretório diferente
+//import { supabase } from "@/lib/supabaseClient"; // Supondo que você tenha o cliente do Supabase configurado
 
 interface ContactListProps {
   selectedContacts: string[];
