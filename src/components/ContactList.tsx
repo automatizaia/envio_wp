@@ -1,62 +1,23 @@
-
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { List } from "lucide-react";
 import { Contact } from "@/types/contacts";
-import { supabase } from "@/services/supabaseClient";  // Importa o cliente Supabase
 
 interface ContactListProps {
+  contacts: Contact[];
   selectedContacts: string[];
   onToggleContact: (contactId: string, checked: boolean) => void;
   onToggleAll: (checked: boolean) => void;
 }
 
 const ContactList: React.FC<ContactListProps> = ({
+  contacts,
   selectedContacts,
   onToggleContact,
   onToggleAll,
 }) => {
-  const [contacts, setContacts] = useState<Contact[]>([]);  // Estado para armazenar os contatos
-  const [loading, setLoading] = useState<boolean>(true);     // Estado para controlar o carregamento
-
-  useEffect(() => {
-    const fetchContacts = async () => {
-      const { data, error } = await supabase
-        .from("clients")  // A tabela 'clients' no seu banco Supabase
-        .select("*")
-        .eq("status", "SIM");
-
-      if (error) {
-        console.error("Error fetching contacts:", error);
-        setLoading(false);
-        return;
-      }
-
-      setContacts(data);  // Armazena os contatos no estado
-      setLoading(false);
-    };
-
-    fetchContacts();
-  }, []);
-
   const allSelected = contacts.length > 0 && selectedContacts.length === contacts.length;
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <List className="h-5 w-5 text-whatsapp" />
-            Contact List
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center py-8 text-gray-500">
-          Loading contacts...
-        </CardContent>
-      </Card>
-    );
-  }
 
   if (contacts.length === 0) {
     return (
@@ -134,7 +95,4 @@ const ContactList: React.FC<ContactListProps> = ({
   );
 };
 
-export default ContactList;
-
-
-export default ContactList;
+export default ContactList;  // Garantir que há apenas uma exportação default
