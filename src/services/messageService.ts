@@ -70,7 +70,8 @@ export const parseCsvContacts = async (file: File): Promise<Contact[]> => {
           if (line) {
             const [name, phone, status = "SIM"] = line.split(",").map(item => item.trim());
             
-            if (name && phone) {
+            // Only import contacts with status "SIM" (case insensitive)
+            if (name && phone && status.toUpperCase() === "SIM") {
               contacts.push({
                 id: `csv-${id++}`,
                 name,

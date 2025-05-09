@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -265,23 +264,9 @@ const Index = () => {
               selectedContacts={selectedContacts}
               onToggleContact={handleToggleContact}
               onToggleAll={handleToggleAll}
+              onSendMessages={handleSendMessages}
+              isSending={isSending}
             />
-            
-            <div className="sticky bottom-0 pt-4">
-              <Button 
-                className="w-full bg-whatsapp hover:bg-whatsapp-dark flex items-center justify-center gap-2 py-6 text-lg"
-                disabled={
-                  isSending || 
-                  isLoading || 
-                  selectedContacts.length === 0 || 
-                  !message.trim()
-                }
-                onClick={handleSendMessages}
-              >
-                <Send className="h-5 w-5" />
-                Send Messages ({selectedContacts.length})
-              </Button>
-            </div>
           </div>
         </div>
       </div>
