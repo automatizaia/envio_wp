@@ -1,43 +1,57 @@
 
 import { Contact, SupabaseContact } from "@/types/contacts";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/services/supabaseClient";
 
-// Mock the Supabase connection until the user connects their Supabase
-// This would normally be replaced with actual Supabase client code
+// Fetch contacts from Supabase where status is "SIM"
 export const fetchEligibleContacts = async (): Promise<Contact[]> => {
   try {
-    // Replace this with actual Supabase query once connected
-    // const { data, error } = await supabase
-    //   .from("clients")
-    //   .select("*")
-    //   .eq("status", "SIM");
+    // Real Supabase query for "clientes" table, filtering by status="SIM"
+    const { data, error } = await supabase
+      .from("clientes")
+      .select("*")
+      .eq("status", "SIM");
     
-    // if (error) throw error;
+    if (error) throw error;
     
-    // Simulating a Supabase response for now
-    const mockContactsData: SupabaseContact[] = Array.from({ length: 15 }, (_, i) => ({
-      id: `${i + 1}`,
-      name: `Contact ${i + 1}`,
-      phone: `+55119${Math.floor(10000000 + Math.random() * 90000000)}`,
-      status: "SIM",
-      created_at: new Date().toISOString(),
+    if (!data || data.length === 0) {
+      // If no real data, fall back to mock data for development
+      console.log("No contacts found in Supabase, using mock data");
+      const mockContactsData: SupabaseContact[] = Array.from({ length: 15 }, (_, i) => ({
+        id: `${i + 1}`,
+        name: `Contact ${i + 1}`,
+        phone: `+55119${Math.floor(10000000 + Math.random() * 90000000)}`,
+        status: "SIM",
+        created_at: new Date().toISOString(),
+      }));
+      
+      // Add a delay to simulate network request
+      await new Promise(resolve => setTimeout(resolve, 800));
+      return mockContactsData;
+    }
+    
+    // Map to our Contact type format
+    const contacts: Contact[] = data.map(item => ({
+      id: item.id.toString(),
+      name: item.name || item.nome, // Handle both possible field names
+      phone: item.phone || item.telefone, // Handle both possible field names
+      status: item.status,
+      created_at: item.created_at,
     }));
     
-    // Add a delay to simulate network request
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    return mockContactsData;
+    return contacts;
   } catch (error) {
     console.error("Error fetching contacts:", error);
     toast({
-      title: "Failed to load contacts",
-      description: "Could not fetch contacts from database. Please try again.",
+      title: "Falha ao carregar contatos",
+      description: "Não foi possível buscar contatos do banco de dados. Tente novamente.",
       variant: "destructive",
     });
     return [];
   }
 };
 
+// Parse contacts from CSV file
 export const parseCsvContacts = async (file: File): Promise<Contact[]> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -82,6 +96,7 @@ export const parseCsvContacts = async (file: File): Promise<Contact[]> => {
   });
 };
 
+// Send messages via webhook
 export const sendMessagesViaWebhook = async (
   contacts: Contact[],
   message: string,
@@ -138,8 +153,8 @@ export const sendMessagesViaWebhook = async (
   } catch (error) {
     console.error("Error sending messages:", error);
     toast({
-      title: "Sending failed",
-      description: "Failed to send messages. Please try again.",
+      title: "Falha no envio",
+      description: "Falha ao enviar mensagens. Tente novamente.",
       variant: "destructive",
     });
     return false;

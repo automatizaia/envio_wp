@@ -1,10 +1,13 @@
+
 export interface Contact {
   id: string;
-  nome: string;
-  telefone: string;
+  name: string;
+  phone: string;
+  status?: string;
+  created_at?: string;
 }
 
 export interface SupabaseContact extends Contact {
-  created_at?: string;
+  created_at: string;
   updated_at?: string;
 }
