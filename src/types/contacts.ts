@@ -1,9 +1,7 @@
-
 export interface Contact {
   id: string;
-  name: string;
-  phone: string;
-  status: string;
+  nome: string;
+  telefone: string;
 }
 
 export interface SupabaseContact extends Contact {
