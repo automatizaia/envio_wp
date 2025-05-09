@@ -65,23 +65,39 @@ export const parseCsvContacts = async (file: File): Promise<Contact[]> => {
         const contacts: Contact[] = [];
         let id = 1;
         
+        // Debug: log the first few lines to check format
+        console.log("CSV first lines:", lines.slice(0, 5));
+        
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
           if (line) {
-            const [name, phone, status = "SIM"] = line.split(",").map(item => item.trim());
+            // Handle both comma and semicolon delimiters
+            const separator = line.includes(";") ? ";" : ",";
+            const columns = line.split(separator).map(item => item.trim());
             
-            // Only import contacts with status "SIM" (case insensitive)
-            if (name && phone && status.toUpperCase() === "SIM") {
+            // Debug each line parsing
+            console.log(`Parsing line ${i}:`, columns);
+            
+            if (columns.length >= 2) {
+              const name = columns[0];
+              const phone = columns[1].replace(/[^\d+]/g, ""); // Clean phone number
+              // Default to "SIM" if status column doesn't exist
+              const status = columns.length >= 3 ? columns[2] : "SIM";
+              
+              // Import all contacts, not filtering by status
               contacts.push({
                 id: `csv-${id++}`,
                 name,
-                phone: phone.replace(/[^\d+]/g, ""), // Clean phone number
+                phone,
                 status,
               });
+              
+              console.log(`Added contact: ${name}, ${phone}, ${status}`);
             }
           }
         }
         
+        console.log(`Total contacts imported: ${contacts.length}`);
         resolve(contacts);
       } catch (error) {
         console.error("CSV parsing error:", error);

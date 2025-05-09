@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +22,9 @@ const Index = () => {
   // State management
   const [message, setMessage] = useState<string>("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfFileName, setPdfFileName] = useState<string | null>(null);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [csvFileName, setCsvFileName] = useState<string | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -47,19 +51,30 @@ const Index = () => {
   // Handle PDF file upload
   const handlePdfUpload = (file: File) => {
     setPdfFile(file);
+    setPdfFileName(file.name);
     toast({
       title: "PDF uploaded",
       description: `${file.name} will be attached to your messages.`,
     });
+  };
+  
+  // Handle PDF file deletion
+  const handlePdfDelete = () => {
+    setPdfFile(null);
+    setPdfFileName(null);
   };
 
   // Handle CSV file upload
   const handleCsvUpload = async (file: File) => {
     try {
       setIsLoading(true);
+      setCsvFile(file);
+      setCsvFileName(file.name);
+      
       const csvContacts = await parseCsvContacts(file);
       setContacts(csvContacts);
       setSelectedContacts(csvContacts.map(c => c.id));
+      
       toast({
         title: "CSV imported",
         description: `Successfully loaded ${csvContacts.length} contacts.`,
@@ -73,6 +88,18 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  // Handle CSV file deletion
+  const handleCsvDelete = () => {
+    setCsvFile(null);
+    setCsvFileName(null);
+    setDataSource("supabase");
+    // Reset contacts to Supabase data
+    fetchEligibleContacts().then(data => {
+      setContacts(data);
+      setSelectedContacts(data.map(c => c.id));
+    });
   };
 
   // Toggle contact selection
@@ -191,6 +218,8 @@ const Index = () => {
                         <FileUploader 
                           fileType="pdf"
                           onFileUploaded={handlePdfUpload}
+                          onFileDeleted={handlePdfDelete}
+                          fileName={pdfFileName}
                         />
                       </div>
                     </div>
@@ -199,7 +228,7 @@ const Index = () => {
                   <TabsContent value="preview">
                     <MessagePreview 
                       message={message}
-                      pdfFileName={pdfFile?.name || null}
+                      pdfFileName={pdfFileName}
                     />
                   </TabsContent>
                 </Tabs>
@@ -250,6 +279,8 @@ const Index = () => {
                     <FileUploader 
                       fileType="csv"
                       onFileUploaded={handleCsvUpload}
+                      onFileDeleted={handleCsvDelete}
+                      fileName={csvFileName}
                     />
                   </TabsContent>
                 </Tabs>
