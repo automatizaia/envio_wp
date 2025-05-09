@@ -1,22 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { List } from "lucide-react";
 import { Contact } from "@/types/contacts";
+import { supabase } from "@/lib/supabaseClient"; // Supondo que você tenha o cliente do Supabase configurado
 
 interface ContactListProps {
-  contacts: Contact[];
   selectedContacts: string[];
   onToggleContact: (contactId: string, checked: boolean) => void;
   onToggleAll: (checked: boolean) => void;
 }
 
 const ContactList: React.FC<ContactListProps> = ({
-  contacts,
   selectedContacts,
   onToggleContact,
   onToggleAll,
 }) => {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+
+  useEffect(() => {
+    // Função para carregar os contatos do Supabase
+    const fetchContacts = async () => {
+      const { data, error } = await supabase.from("contacts").select("id, name, phone");
+
+      if (error) {
+        console.error("Erro ao carregar contatos:", error);
+      } else {
+        setContacts(data || []);
+      }
+    };
+
+    fetchContacts();
+  }, []);
+
   const allSelected = contacts.length > 0 && selectedContacts.length === contacts.length;
 
   if (contacts.length === 0) {
@@ -95,6 +111,6 @@ const ContactList: React.FC<ContactListProps> = ({
   );
 };
 
-// Garantindo apenas uma exportação default
 export default ContactList;
+
 
