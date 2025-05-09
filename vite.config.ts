@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react"; // Alterado para o plugin 'react' padrão do Vite
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import json from '@vitejs/plugin-json'; // Adicionando suporte a arquivos JSON
@@ -11,9 +11,9 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [
-    react(),
+    react(), // Plugin React atualizado
     mode === 'development' && componentTagger(),
-    json(), // Adicionando o plugin JSON
+    json(), // Plugin JSON
   ].filter(Boolean),
   resolve: {
     alias: {
