@@ -95,4 +95,6 @@ const ContactList: React.FC<ContactListProps> = ({
   );
 };
 
-export default ContactList;  // Garantir que há apenas uma exportação default
+// Garantindo apenas uma exportação default
+export default ContactList;
+
